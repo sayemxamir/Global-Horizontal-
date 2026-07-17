@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Global Horizontal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0B1120;--bg2:#0F1626;--card:#141C2E;--card-hover:#1A2338;
+  --border:#232D45;--text:#E8ECF4;--text-dim:#8B95AB;--text-dim2:#5D6987;
+  --accent:#F0A63A;--accent-dark:#C9861F;--accent-glow:rgba(240,166,58,0.25);
+  --green:#22C55E;--green-dim:rgba(34,197,94,0.14);--green-bd:rgba(34,197,94,0.35);
+  --red:#F87171;--red-dim:rgba(248,113,113,0.14);--red-bd:rgba(248,113,113,0.35);
+  --blue:#60A5FA;--blue-dim:rgba(96,165,250,0.14);
+  --radius:16px;--radius-sm:10px;
+}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  background:radial-gradient(ellipse at top,#131c33 0%,#0B1120 55%);
+  color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;}
+.lang-ur,.lang-ur input,.lang-ur select,.lang-ur button,.lang-ur textarea{
+  font-family:'Jameel Noori Nastaleeq','Noto Nastaliq Urdu','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  line-height:1.9;
+}
+[dir="rtl"] body{direction:rtl;}
+
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-card{width:100%;max-width:380px;background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--border);border-radius:20px;padding:36px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;}
+.login-logo{font-size:44px;margin-bottom:8px;filter:drop-shadow(0 0 20px var(--accent-glow));}
+.login-card h1{font-size:22px;letter-spacing:2px;font-weight:800;background:linear-gradient(90deg,var(--accent),#FFD98A);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px;}
+.urdu-brand{font-size:15px;color:var(--accent);margin-bottom:6px;display:none;}
+.tagline{color:var(--text-dim);font-size:13px;margin-bottom:28px;}
+.login-card label{display:block;text-align:left;font-size:12px;color:var(--text-dim);margin-bottom:6px;font-weight:600;}
+[dir="rtl"] .login-card label{text-align:right;}
+.login-card input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 14px;border-radius:var(--radius-sm);font-size:15px;margin-bottom:16px;outline:none;transition:border-color .2s;}
+.login-card input:focus{border-color:var(--accent);}
+.btn-primary{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));color:#1a1200;border:none;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px var(--accent-glow);}
+.hint{font-size:11.5px;color:var(--text-dim2);margin-top:14px;line-height:1.6;}
+.lang-toggle-btn{position:absolute;top:18px;right:18px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer;}
+[dir="rtl"] .lang-toggle-btn{right:auto;left:18px;}
+
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(11,17,32,0.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
+.header-left{display:flex;align-items:center;gap:8px;}
+.header-logo{font-size:22px;}
+.header-title{font-weight:800;font-size:14px;letter-spacing:1px;color:var(--accent);}
+.header-right{display:flex;align-items:center;gap:10px;position:relative;}
+.lang-toggle-btn-sm{background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:5px 10px;border-radius:16px;font-size:11px;cursor:pointer;}
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 10px;border-radius:20px;cursor:pointer;font-size:12px;}
+.user-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1a1200;flex-shrink:0;}
+.user-dropdown{position:absolute;top:44px;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;width:230px;box-shadow:0 12px 30px rgba(0,0,0,0.5);z-index:30;}
+[dir="rtl"] .user-dropdown{right:auto;left:0;}
+.user-dropdown-label{font-size:10px;color:var(--text-dim2);padding:6px 8px;text-transform:uppercase;letter-spacing:1px;}
+.user-dropdown-item{padding:9px 10px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.user-dropdown-item:hover{background:var(--card-hover);}
+.user-dropdown-item.active{background:var(--accent-glow);color:var(--accent);}
+.role-tag{font-size:9px;background:var(--bg2);padding:2px 6px;border-radius:6px;color:var(--text-dim);white-space:nowrap;}
+.logout-row{border-top:1px solid var(--border);margin-top:6px;padding-top:9px;color:var(--red);justify-content:center;}
+
+.balance-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 16px 4px;}
+.bstat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+.bstat .lbl{font-size:9.5px;color:var(--text-dim);display:block;margin-bottom:4px;}
+.bstat .val{font-size:14px;font-weight:800;}
+.bstat.balance .val{color:var(--accent);}
+.bstat.income .val{color:var(--green);}
+.bstat.expense .val{color:var(--red);}
+
+main{padding:16px 16px 90px;max-width:640px;margin:0 auto;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.info-banner{background:var(--blue-dim);border:1px solid rgba(96,165,250,0.3);color:var(--text-dim);padding:12px 30px 12px 14px;border-radius:var(--radius-sm);font-size:11.5px;line-height:1.6;margin-bottom:16px;position:relative;}
+[dir="rtl"] .info-banner{padding:12px 14px 12px 30px;}
+.info-banner .close-x{position:absolute;top:8px;right:10px;cursor:pointer;color:var(--text-dim);font-size:13px;}
+[dir="rtl"] .info-banner .close-x{right:auto;left:10px;}
+
+.view-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;}
+.view-header h2{font-size:19px;font-weight:800;}
+.btn-add{background:var(--accent);color:#1a1200;border:none;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;}
+.stat-card.highlight{background:linear-gradient(160deg,var(--card),rgba(240,166,58,0.08));border-color:var(--accent-dark);}
+.stat-label{font-size:9.5px;color:var(--text-dim);display:block;margin-bottom:6px;}
+.stat-value{font-size:16px;font-weight:800;}
+
+.compare-bars{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:18px;}
+.compare-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:12px;}
+.compare-row:last-child{margin-bottom:0;}
+.compare-row>span:first-child{width:56px;color:var(--text-dim);flex-shrink:0;}
+.compare-row>span:last-child{width:95px;text-align:right;font-weight:700;flex-shrink:0;}
+[dir="rtl"] .compare-row>span:last-child{text-align:left;}
+.bar-track{flex:1;height:8px;background:var(--bg2);border-radius:6px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;transition:width .6s ease;}
+.bar-fill.green{background:linear-gradient(90deg,#16A34A,var(--green));}
+.bar-fill.red{background:linear-gradient(90deg,#DC2626,var(--red));}
+
+.quick-actions{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+.quick-actions button{flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:11px 8px;border-radius:var(--radius-sm);font-size:11.5px;font-weight:600;cursor:pointer;}
+.quick-actions button:hover{border-color:var(--accent);}
+
+h3.section-title{font-size:12.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px;}
+
+.card-list{display:flex;flex-direction:column;gap:10px;}
+.item-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.item-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.item-title{font-weight:700;font-size:14px;}
+.item-sub{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+.item-amount{font-weight:800;font-size:15px;white-space:nowrap;}
+.item-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:10.5px;color:var(--text-dim);}
+.item-meta span{background:var(--bg2);padding:3px 8px;border-radius:8px;}
+
+.badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+.badge.verified,.badge.completed_paid{background:var(--green-dim);color:var(--green);border:1px solid var(--green-bd);}
+.badge.pending,.badge.completed_pending{background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent-dark);}
+.badge.disputed{background:var(--red-dim);color:var(--red);border:1px solid var(--red-bd);}
+.badge.in_progress{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(96,165,250,0.35);}
+.badge.income{background:var(--green-dim);color:var(--green);}
+.badge.expense{background:var(--red-dim);color:var(--red);}
+
+.receipt-thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;}
+.no-receipt{font-size:11px;color:var(--text-dim2);font-style:italic;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim2);font-size:13px;}
+
+.verify-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.verify-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.verify-details{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--text-dim);margin-bottom:10px;}
+.verify-actions{display:flex;gap:8px;margin-top:10px;}
+.btn-verify{flex:1;background:var(--green-dim);border:1px solid var(--green-bd);color:var(--green);padding:9px;border-radius:var(--radius-sm);font-weight:700;font-size:12px;cursor:pointer;}
+.btn-reject{flex:1;background:var(--red-dim);border:1px solid var(--red-bd);color:var(--red);padding:9px;border-radius:var(--radius-sm);font-weight:700;font-size:12px;cursor:pointer;}
+.own-note{background:var(--bg2);color:var(--text-dim);font-size:11px;padding:9px;border-radius:var(--radius-sm);text-align:center;margin-top:8px;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,17,32,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:20;}
+.nav-item{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-dim2);border:none;background:none;font-size:9px;font-weight:600;}
+.nav-item svg{width:19px;height:19px;}
+.nav-item.active{color:var(--accent);}
+.nav-badge{position:absolute;top:0;right:18%;background:var(--red);color:white;font-size:8px;min-width:14px;height:14px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;z-index:50;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:20px;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:var(--card);border:1px solid var(--border);width:30px;height:30px;border-radius:50%;color:var(--text-dim);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:11px 12px;border-radius:var(--radius-sm);font-size:14px;outline:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;position:relative;font-size:12.5px;color:var(--text-dim);}
+.upload-zone:hover{border-color:var(--accent);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-preview{width:100%;max-height:170px;object-fit:contain;border-radius:8px;margin-bottom:4px;display:block;}
+.btn-extract{width:100%;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(96,165,250,0.35);padding:10px;border-radius:var(--radius-sm);font-weight:700;font-size:12px;cursor:pointer;margin-top:8px;}
+.extract-status{font-size:11px;text-align:center;margin-top:8px;min-height:14px;}
+.extract-status.extracting{color:var(--blue);}
+.extract-status.success{color:var(--green);}
+.extract-status.error{color:var(--red);}
+.btn-submit{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));color:#1a1200;border:none;padding:14px;border-radius:var(--radius-sm);font-weight:800;font-size:14px;cursor:pointer;margin-top:6px;}
+.receipt-modal-img{width:100%;max-height:70vh;object-fit:contain;border-radius:12px;background:#000;display:block;}
+
+.member-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;gap:8px;}
+.member-row-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.mini-remove{background:var(--red-dim);border:1px solid var(--red-bd);color:var(--red);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:12px;flex-shrink:0;}
+.cat-report-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.cat-report-row:last-child{border-bottom:none;}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);color:var(--text);padding:11px 20px;border-radius:20px;font-size:13px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.4);white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login-screen">
+  <div class="login-card">
+    <button id="langToggleLogin" class="lang-toggle-btn">اردو</button>
+    <div class="login-logo">⛏️</div>
+    <h1>GLOBAL HORIZONTAL</h1>
+    <p class="urdu-brand" id="urduBrandLogin">گلوبل ہورائزنٹل</p>
+    <p class="tagline" id="loginTagline">Business & Expense Management</p>
+    <label id="lblPhone">Phone Number</label>
+    <input id="phoneInput" type="tel" placeholder="03XX-XXXXXXX" />
+    <button id="btnLogin" class="btn-primary">Login</button>
+    <p class="hint" id="loginHint"></p>
+  </div>
+</div>
+
+<div id="appView" style="display:none">
+  <header class="app-header">
+    <div class="header-left">
+      <span class="header-logo">⛏️</span>
+      <span class="header-title">GLOBAL HORIZONTAL</span>
+    </div>
+    <div class="header-right">
+      <button id="langToggleApp" class="lang-toggle-btn-sm">اردو</button>
+      <div id="userMenu"></div>
+    </div>
+  </header>
+  <div class="balance-strip" id="balanceStrip"></div>
+  <main id="content"></main>
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" style="display:none">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+const tr = {
+  en: {
+    tagline:"Business & Expense Management", phoneLabel:"Phone Number", loginBtn:"Login",
+    membersOnlyHint:"Registered members only — ask your admin to add your number.",
+    notRegistered:"This number isn't registered. Contact your admin to be added.",
+    dashboard:"Dashboard", sites:"Sites", income:"Income", expenses:"Expenses", verify:"Verify", admin:"Admin",
+    actingAs:"Acting as", switchUser:"Switch Account (testing)", logout:"Logout",
+    totalBalance:"Total Balance", totalIncome:"Total Income", totalExpense:"Total Expense",
+    pendingVerification:"Pending Verification", activeSites:"Active Sites", recentActivity:"Recent Activity",
+    verified:"Verified", pending:"Pending", disputed:"Disputed",
+    addSite:"Add Site", addIncome:"Add Payment", addExpense:"Add Expense", viewAll:"View All",
+    allSites:"Drilling Sites", siteName:"Site Name", location:"Location", client:"Client Name",
+    drillingCategory:"Drilling Category", expectedAmount:"Expected Amount (PKR)", startDate:"Start Date",
+    status:"Status", in_progress:"In Progress", completed_pending:"Completed — Payment Pending", completed_paid:"Completed — Paid",
+    addNewSite:"Add New Drilling Site", save:"Save Site",
+    incomeRecords:"Income Records", addPayment:"Add Payment / Income", amount:"Amount (PKR)", date:"Date",
+    paymentMethod:"Payment Method", uploadReceipt:"Upload Bank Receipt / Screenshot", extractReceipt:"Extract Details from Receipt",
+    submittedBy:"Submitted by", forSite:"For Site", noReceiptYet:"No receipt uploaded yet", selectSite:"Select Site",
+    expenseRecords:"Expense Records", category:"Category", workerName:"Worker Name (optional)", description:"Description / Notes",
+    pendingQueue:"Pending Verification Queue", verifyBtn:"Verify", reject:"Reject",
+    cannotVerifyOwn:"You submitted this — another member must verify it",
+    members:"Members", role:"Member", allTransactions:"All Transactions", reportsByCategory:"Expense by Category", totalMembers:"Total Members",
+    fuel:"Fuel & Diesel", machinery:"Machinery Maintenance", drillbits:"Drill Bits & Consumables", rental:"Equipment Rental",
+    wages:"Worker Wages", setup:"Site Setup & Mobilization", transport:"Transportation", casing:"Casing Pipes & Materials",
+    watermud:"Water/Mud Supply", permits:"Permits & Government Fees", misc:"Miscellaneous",
+    tubewell:"Tubewell Drilling", borewell:"Borewell Drilling", exploration:"Exploration Drilling", watersurvey:"Water Survey",
+    industrial:"Industrial Drilling", agri:"Agricultural Drilling",
+    cash:"Cash", banktransfer:"Bank Transfer", jazzcash:"JazzCash", easypaisa:"EasyPaisa", cheque:"Cheque", onlinebanking:"Online Banking",
+    submit:"Submit", viewReceipt:"View Receipt", noData:"No records yet", noPending:"No pending verifications 🎉",
+    extracting:"Reading receipt with AI…", extracted:"Details extracted and filled in", extractFailed:"Couldn't read receipt — enter manually",
+    markPaid:"Add Payment Proof", infoBanner:"Working concept prototype: login is by registered phone number only (no OTP in this version). Receipt reading uses real AI vision. Data resets on refresh — a production build would connect to a secure database.",
+    resetDemo:"Reset Demo Data", newMemberDefault:"Removed Member", requiredField:"Please fill all required fields",
+    addMember:"Add Member", memberName:"Full Name", roleFieldLbl:"Role", memberTitleLbl:"Position / Title (optional)",
+    removeMember:"Remove", cannotRemoveSelf:"You can't remove your own account while logged in as them.",
+    needOneAdmin:"At least one admin must remain.", numberExists:"This number is already registered.", exampleTag:"Example — replace me"
+  },
+  ur: {
+    tagline:"کاروبار اور اخراجات کا انتظام", phoneLabel:"فون نمبر", loginBtn:"لاگ ان",
+    membersOnlyHint:"صرف رجسٹرڈ ممبران — نمبر شامل کروانے کے لیے ایڈمن سے رابطہ کریں۔",
+    notRegistered:"یہ نمبر رجسٹرڈ نہیں ہے۔ شامل ہونے کے لیے ایڈمن سے رابطہ کریں۔",
+    dashboard:"ڈیش بورڈ", sites:"سائٹس", income:"آمدنی", expenses:"اخراجات", verify:"تصدیق", admin:"ایڈمن",
+    actingAs:"بطور", switchUser:"اکاؤنٹ تبدیل کریں (ٹیسٹنگ)", logout:"لاگ آؤٹ",
+    totalBalance:"کل بیلنس", totalIncome:"کل آمدنی", totalExpense:"کل اخراجات",
+    pendingVerification:"زیر تصدیق", activeSites:"فعال سائٹس", recentActivity:"حالیہ سرگرمی",
+    verified:"تصدیق شدہ", pending:"زیر التوا", disputed:"متنازعہ",
+    addSite:"سائٹ شامل کریں", addIncome:"ادائیگی شامل کریں", addExpense:"خرچہ شامل کریں", viewAll:"تمام دیکھیں",
+    allSites:"ڈرلنگ سائٹس", siteName:"سائٹ کا نام", location:"مقام", client:"کلائنٹ کا نام",
+    drillingCategory:"ڈرلنگ کی قسم", expectedAmount:"متوقع رقم (روپے)", startDate:"شروع کرنے کی تاریخ",
+    status:"صورتحال", in_progress:"جاری", completed_pending:"مکمل — ادائیگی باقی", completed_paid:"مکمل — ادا شدہ",
+    addNewSite:"نئی ڈرلنگ سائٹ شامل کریں", save:"سائٹ محفوظ کریں",
+    incomeRecords:"آمدنی کا ریکارڈ", addPayment:"ادائیگی / آمدنی شامل کریں", amount:"رقم (روپے)", date:"تاریخ",
+    paymentMethod:"ادائیگی کا طریقہ", uploadReceipt:"بینک رسید / اسکرین شاٹ اپ لوڈ کریں", extractReceipt:"رسید سے تفصیلات نکالیں",
+    submittedBy:"جمع کنندہ", forSite:"سائٹ کے لیے", noReceiptYet:"ابھی رسید موجود نہیں", selectSite:"سائٹ منتخب کریں",
+    expenseRecords:"اخراجات کا ریکارڈ", category:"قسم", workerName:"مزدور کا نام (اختیاری)", description:"تفصیل / نوٹس",
+    pendingQueue:"زیر تصدیق فہرست", verifyBtn:"تصدیق کریں", reject:"مسترد کریں",
+    cannotVerifyOwn:"یہ اندراج آپ نے جمع کرائی ہے — کسی دوسرے ممبر کو تصدیق کرنی ہوگی",
+    members:"ممبران", role:"ممبر", allTransactions:"تمام لین دین", reportsByCategory:"قسم کے مطابق اخراجات", totalMembers:"کل ممبران",
+    fuel:"ایندھن اور ڈیزل", machinery:"مشینری کی دیکھ بھال", drillbits:"ڈرل بٹس اور اشیاء", rental:"آلات کرایہ",
+    wages:"مزدوروں کی اجرت", setup:"سائٹ کی تیاری", transport:"نقل و حمل", casing:"کیسنگ پائپ",
+    watermud:"پانی اور مٹی", permits:"اجازت نامے اور فیس", misc:"متفرق",
+    tubewell:"ٹیوب ویل ڈرلنگ", borewell:"بور ویل ڈرلنگ", exploration:"تحقیقی ڈرلنگ", watersurvey:"پانی کا سروے",
+    industrial:"صنعتی ڈرلنگ", agri:"زرعی ڈرلنگ",
+    cash:"نقد", banktransfer:"بینک ٹرانسفر", jazzcash:"جاز کیش", easypaisa:"ایزی پیسہ", cheque:"چیک", onlinebanking:"آن لائن بینکنگ",
+    submit:"جمع کرائیں", viewReceipt:"رسید دیکھیں", noData:"ابھی کوئی ریکارڈ نہیں", noPending:"کوئی زیر تصدیق نہیں 🎉",
+    extracting:"AI رسید پڑھ رہا ہے…", extracted:"تفصیلات نکال کر بھر دی گئیں", extractFailed:"رسید نہیں پڑھی جا سکی — خود درج کریں",
+    markPaid:"ادائیگی کا ثبوت شامل کریں", infoBanner:"یہ ایک فعال کانسیپٹ پروٹو ٹائپ ہے۔ لاگ ان صرف رجسٹرڈ فون نمبر سے ہوتا ہے (اس ورژن میں او ٹی پی نہیں ہے)۔ رسید پڑھنے کے لیے حقیقی AI استعمال ہوتا ہے۔ ری فریش پر ڈیٹا ری سیٹ ہو جاتا ہے — اصل ورژن ایک محفوظ ڈیٹا بیس سے جڑا ہوگا۔",
+    resetDemo:"ڈیمو ڈیٹا ری سیٹ کریں", newMemberDefault:"ہٹایا گیا ممبر", requiredField:"براہ کرم تمام ضروری خانے پُر کریں",
+    addMember:"ممبر شامل کریں", memberName:"پورا نام", roleFieldLbl:"کردار", memberTitleLbl:"عہدہ (اختیاری)",
+    removeMember:"ہٹائیں", cannotRemoveSelf:"لاگ ان ہونے کے دوران آپ اپنا اکاؤنٹ نہیں ہٹا سکتے۔",
+    needOneAdmin:"کم از کم ایک ایڈمن ضروری ہے۔", numberExists:"یہ نمبر پہلے سے رجسٹرڈ ہے۔", exampleTag:"مثال — تبدیل کریں"
+  }
+};
+
+let uidCounter = 100;
+function uid(p){ return p + (uidCounter++); }
+
+let st = {
+  lang:'en', loggedIn:false, activeUser:null, activeTab:'dashboard',
+  members:[
+    {id:'m1', name:'Sayem Chaudhary', phone:'03055933315', role:'admin', title:'Admin / Owner', titleUr:'ایڈمن / مالک'},
+    {id:'m2', name:'Bilal Raza', phone:'03212345678', role:'member', title:'Site Supervisor (example)', titleUr:'سائٹ سپروائزر (مثال)'},
+    {id:'m3', name:'Kamran Sheikh', phone:'03333456789', role:'member', title:'Accountant (example)', titleUr:'اکاؤنٹنٹ (مثال)'},
+    {id:'m4', name:'Usman Tariq', phone:'03454567890', role:'member', title:'Operations Manager (example)', titleUr:'آپریشنز مینیجر (مثال)'}
+  ],
+  sites:[
+    {id:'s1', name:'Chak 45 Tubewell', location:'Chak 45, Faisalabad', client:'Malik Farms', category:'tubewell', expectedAmount:450000, startDate:'2026-05-02', status:'completed_paid'},
+    {id:'s2', name:'DHA Phase 6 Borewell', location:'DHA Phase 6, Lahore', client:'Al-Noor Housing Society', category:'borewell', expectedAmount:680000, startDate:'2026-06-10', status:'completed_pending'},
+    {id:'s3', name:'Multan Water Survey', location:'Multan Cantt', client:'City Municipal Corporation', category:'watersurvey', expectedAmount:320000, startDate:'2026-07-01', status:'in_progress'}
+  ],
+  incomeTx:[
+    {id:'i1', kind:'income', siteId:'s1', amount:450000, date:'2026-05-28', method:'banktransfer', receipt:null, submittedBy:'m3', status:'verified', verifiedBy:'m1'},
+    {id:'i2', kind:'income', siteId:'s2', amount:680000, date:'2026-07-10', method:'onlinebanking', receipt:null, submittedBy:'m2', status:'pending', verifiedBy:null}
+  ],
+  expenseTx:[
+    {id:'e1', kind:'expense', category:'fuel', amount:45000, date:'2026-07-05', method:'cash', receipt:null, description:'Diesel for rig #2', worker:'', submittedBy:'m4', status:'verified', verifiedBy:'m1'},
+    {id:'e2', kind:'expense', category:'drillbits', amount:78000, date:'2026-07-08', method:'banktransfer', receipt:null, description:'Replacement tungsten bits', worker:'', submittedBy:'m2', status:'verified', verifiedBy:'m3'},
+    {id:'e3', kind:'expense', category:'wages', amount:125000, date:'2026-07-12', method:'cash', receipt:null, description:'Weekly wages', worker:'Team A (5 workers)', submittedBy:'m4', status:'pending', verifiedBy:null},
+    {id:'e4', kind:'expense', category:'machinery', amount:62000, date:'2026-07-14', method:'jazzcash', receipt:null, description:'Compressor repair', worker:'', submittedBy:'m2', status:'verified', verifiedBy:'m1'}
+  ],
+  modalOpen:null, modalData:{}, infoBannerDismissed:false
+};
+const seedData = JSON.parse(JSON.stringify({members:st.members, sites:st.sites, incomeTx:st.incomeTx, expenseTx:st.expenseTx}));
+
+function t(k){ return (tr[st.lang] && tr[st.lang][k]) || k; }
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtMoney(n){ return 'Rs. ' + Math.round(n||0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(d){
+  if(!d) return '-';
+  const dt = new Date(d+'T00:00:00');
+  if (isNaN(dt.getTime())) return d;
+  try { return dt.toLocaleDateString(st.lang==='ur'?'ur-PK':'en-GB', {day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return dt.getDate()+' '+mo[dt.getMonth()]+' '+dt.getFullYear(); }
+}
+function getMember(id){ return st.members.find(m=>m.id===id); }
+function memberTitle(m){ return st.lang==='ur' ? (m.titleUr||m.title||'') : (m.title||''); }
+function getMemberName(id){ const m=getMember(id); return m? m.name : t('newMemberDefault'); }
+function getSite(id){ return st.sites.find(s=>s.id===id); }
+function getSiteName(id){ const s=getSite(id); return s? esc(s.name) : '-'; }
+function calcTotals(){
+  const totalIncome = st.incomeTx.filter(x=>x.status==='verified').reduce((a,b)=>a+b.amount,0);
+  const totalExpense = st.expenseTx.filter(x=>x.status==='verified').reduce((a,b)=>a+b.amount,0);
+  const pendingCount = st.incomeTx.filter(x=>x.status==='pending').length + st.expenseTx.filter(x=>x.status==='pending').length;
+  return {totalIncome, totalExpense, balance: totalIncome-totalExpense, pendingCount};
+}
+
+function applyLangUI(){
+  document.documentElement.dir = st.lang==='ur' ? 'rtl':'ltr';
+  document.documentElement.lang = st.lang==='ur' ? 'ur':'en';
+  document.body.classList.toggle('lang-ur', st.lang==='ur');
+  document.getElementById('urduBrandLogin').style.display = st.lang==='ur' ? 'block':'none';
+  document.getElementById('loginTagline').textContent = t('tagline');
+  document.getElementById('lblPhone').textContent = t('phoneLabel');
+  document.getElementById('btnLogin').textContent = t('loginBtn');
+  document.getElementById('loginHint').textContent = t('membersOnlyHint');
+  document.querySelectorAll('.lang-toggle-btn, .lang-toggle-btn-sm').forEach(b=> b.textContent = st.lang==='ur' ? 'English' : 'اردو');
+  if (st.loggedIn){ renderHeader(); renderBalanceStrip(); renderNav(); renderContent(); }
+}
+document.getElementById('langToggleLogin').addEventListener('click', ()=>{ st.lang = st.lang==='en'?'ur':'en'; applyLangUI(); });
+document.getElementById('langToggleApp').addEventListener('click', ()=>{ st.lang = st.lang==='en'?'ur':'en'; applyLangUI(); });
+
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const phone = document.getElementById('phoneInput').value.trim();
+  const normalized = phone.replace(/\D/g,'');
+  if (normalized.length < 10){ showToast(t('requiredField')); return; }
+  const matched = st.members.find(m => m.phone === normalized || m.phone.slice(-10)===normalized.slice(-10));
+  if (!matched){ showToast(t('notRegistered')); return; }
+  st.activeUser = matched;
+  st.loggedIn = true;
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('appView').style.display='block';
+  renderHeader(); renderBalanceStrip(); renderNav(); switchTab('dashboard');
+});
+document.getElementById('phoneInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnLogin').click(); });
+
+function renderHeader(){
+  document.getElementById('userMenu').innerHTML = `
+    <div class="user-chip" data-action="toggleUserMenu">
+      <span class="user-avatar">${esc(st.activeUser.name.charAt(0))}</span>
+      <span>${esc(st.activeUser.name.split(' ')[0])}</span>
+    </div>
+    <div class="user-dropdown" id="userDropdown" style="display:none">
+      <div class="user-dropdown-label">${t('switchUser')}</div>
+      ${st.members.map(m=>`
+        <div class="user-dropdown-item ${m.id===st.activeUser.id?'active':''}" data-action="switchUser" data-id="${m.id}">
+          <span>${esc(m.name)}</span><span class="role-tag">${m.role==='admin'?t('admin'):esc(memberTitle(m))}</span>
+        </div>`).join('')}
+      <div class="user-dropdown-item logout-row" data-action="logout">${t('logout')}</div>
+    </div>`;
+}
+function renderBalanceStrip(){
+  const {balance, totalIncome, totalExpense} = calcTotals();
+  document.getElementById('balanceStrip').innerHTML = `
+    <div class="bstat balance"><span class="lbl">${t('totalBalance')}</span><span class="val">${fmtMoney(balance)}</span></div>
+    <div class="bstat income"><span class="lbl">${t('totalIncome')}</span><span class="val">${fmtMoney(totalIncome)}</span></div>
+    <div class="bstat expense"><span class="lbl">${t('totalExpense')}</span><span class="val">${fmtMoney(totalExpense)}</span></div>`;
+}
+const navIcons = {
+  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  sites:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+  income:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+  expenses:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
+  verify:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
+  admin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>'
+};
+function renderNav(){
+  const {pendingCount} = calcTotals();
+  const tabs = ['dashboard','sites','income','expenses','verify'];
+  if (st.activeUser.role==='admin') tabs.push('admin');
+  document.getElementById('bottomNav').innerHTML = tabs.map(tab=>`
+    <button class="nav-item ${st.activeTab===tab?'active':''}" data-action="switchTab" data-tab="${tab}">
+      ${navIcons[tab]}<span>${t(tab)}</span>
+      ${tab==='verify' && pendingCount>0 ? `<span class="nav-badge">${pendingCount}</span>` : ''}
+    </button>`).join('');
+}
+function switchTab(tab){ st.activeTab = tab; renderNav(); renderContent(); document.getElementById('content').scrollTop = 0; }
+
+function renderContent(){
+  const el = document.getElementById('content');
+  let html = '';
+  if (!st.infoBannerDismissed) html += `<div class="info-banner"><span class="close-x" data-action="dismissBanner">✕</span>${t('infoBanner')}</div>`;
+  if (st.activeTab==='dashboard') html += renderDash();
+  else if (st.activeTab==='sites') html += renderSites();
+  else if (st.activeTab==='income') html += renderIncomeView();
+  else if (st.activeTab==='expenses') html += renderExpensesView();
+  else if (st.activeTab==='verify') html += renderVerifyView();
+  else if (st.activeTab==='admin') html += renderAdminView();
+  el.innerHTML = html;
+  el.style.animation='none'; void el.offsetWidth; el.style.animation='fadeIn .25s ease';
+}
+
+function renderDash(){
+  const {balance, totalIncome, totalExpense, pendingCount} = calcTotals();
+  const maxVal = Math.max(totalIncome, totalExpense, 1);
+  const incomePct = Math.round((totalIncome/maxVal)*100), expensePct = Math.round((totalExpense/maxVal)*100);
+  const activeSitesCount = st.sites.filter(s=>s.status!=='completed_paid').length;
+  const allTx = [...st.incomeTx, ...st.expenseTx].sort((a,b)=> new Date(b.date)-new Date(a.date)).slice(0,5);
+  return `
+    <div class="view-header"><h2>${t('dashboard')}</h2></div>
+    <div class="stat-grid">
+      <div class="stat-card highlight"><span class="stat-label">${t('pendingVerification')}</span><span class="stat-value">${pendingCount}</span></div>
+      <div class="stat-card"><span class="stat-label">${t('activeSites')}</span><span class="stat-value">${activeSitesCount}</span></div>
+      <div class="stat-card"><span class="stat-label">${t('totalMembers')}</span><span class="stat-value">${st.members.length}</span></div>
+    </div>
+    <div class="compare-bars">
+      <div class="compare-row"><span>${t('income')}</span><div class="bar-track"><div class="bar-fill green" style="width:${incomePct}%"></div></div><span>${fmtMoney(totalIncome)}</span></div>
+      <div class="compare-row"><span>${t('expenses')}</span><div class="bar-track"><div class="bar-fill red" style="width:${expensePct}%"></div></div><span>${fmtMoney(totalExpense)}</span></div>
+    </div>
+    <div class="quick-actions">
+      <button data-action="openModal" data-modal="site">+ ${t('addSite')}</button>
+      <button data-action="openModal" data-modal="income">+ ${t('addIncome')}</button>
+      <button data-action="openModal" data-modal="expense">+ ${t('addExpense')}</button>
+    </div>
+    <h3 class="section-title">${t('recentActivity')}</h3>
+    <div class="card-list">${allTx.length ? allTx.map(renderActivityRow).join('') : `<div class="empty-state">${t('noData')}</div>`}</div>`;
+}
+function renderActivityRow(item){
+  const isIncome = item.kind==='income';
+  const title = isIncome ? getSiteName(item.siteId) : t(item.category);
+  return `
+    <div class="item-card">
+      <div class="item-card-top">
+        <div><span class="badge ${item.kind}">${isIncome?t('income'):t('expenses')}</span>
+          <div class="item-title" style="margin-top:6px">${title}</div>
+          <div class="item-sub">${fmtDate(item.date)} · ${esc(getMemberName(item.submittedBy))}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="item-amount" style="color:${isIncome?'var(--green)':'var(--red)'}">${isIncome?'+':'-'}${fmtMoney(item.amount)}</div>
+          <span class="badge ${item.status}" style="margin-top:6px;display:inline-block">${t(item.status)}</span>
+        </div>
+      </div>
+    </div>`;
+}
+function renderSites(){
+  return `
+    <div class="view-header"><h2>${t('allSites')}</h2><button class="btn-add" data-action="openModal" data-modal="site">+ ${t('addSite')}</button></div>
+    <div class="card-list">${st.sites.length ? st.sites.slice().reverse().map(renderSiteCard).join('') : `<div class="empty-state">${t('noData')}</div>`}</div>`;
+}
+function renderSiteCard(site){
+  return `
+    <div class="item-card">
+      <div class="item-card-top">
+        <div><div class="item-title">${esc(site.name)}</div><div class="item-sub">📍 ${esc(site.location)} · ${esc(site.client)}</div></div>
+        <span class="badge ${site.status}">${t(site.status)}</span>
+      </div>
+      <div class="item-meta"><span>${t(site.category)}</span><span>${fmtDate(site.startDate)}</span><span>${fmtMoney(site.expectedAmount)}</span></div>
+      ${site.status==='completed_pending' ? `<button class="btn-extract" style="margin-top:10px" data-action="openModal" data-modal="income" data-site="${site.id}">📤 ${t('markPaid')}</button>` : ''}
+    </div>`;
+}
+function renderIncomeView(){
+  return `
+    <div class="view-header"><h2>${t('incomeRecords')}</h2><button class="btn-add" data-action="openModal" data-modal="income">+ ${t('addIncome')}</button></div>
+    <div class="card-list">${st.incomeTx.length ? st.incomeTx.slice().reverse().map(renderIncomeCard).join('') : `<div class="empty-state">${t('noData')}</div>`}</div>`;
+}
+function renderIncomeCard(tx){
+  return `
+    <div class="item-card">
+      <div class="item-card-top">
+        <div><div class="item-title">${getSiteName(tx.siteId)}</div><div class="item-sub">${fmtDate(tx.date)} · ${t(tx.method)} · ${esc(getMemberName(tx.submittedBy))}</div></div>
+        <div style="text-align:right"><div class="item-amount" style="color:var(--green)">${fmtMoney(tx.amount)}</div><span class="badge ${tx.status}" style="margin-top:6px;display:inline-block">${t(tx.status)}</span></div>
+      </div>
+      ${tx.receipt ? `<img class="receipt-thumb" src="${tx.receipt}" data-action="viewReceipt" data-src="${tx.receipt}" style="margin-top:8px">` : `<div class="no-receipt" style="margin-top:8px">${t('noReceiptYet')}</div>`}
+    </div>`;
+}
+function renderExpensesView(){
+  return `
+    <div class="view-header"><h2>${t('expenseRecords')}</h2><button class="btn-add" data-action="openModal" data-modal="expense">+ ${t('addExpense')}</button></div>
+    <div class="card-list">${st.expenseTx.length ? st.expenseTx.slice().reverse().map(renderExpenseCard).join('') : `<div class="empty-state">${t('noData')}</div>`}</div>`;
+}
+function renderExpenseCard(tx){
+  return `
+    <div class="item-card">
+      <div class="item-card-top">
+        <div><div class="item-title">${t(tx.category)}${tx.worker?' · '+esc(tx.worker):''}</div><div class="item-sub">${fmtDate(tx.date)} · ${t(tx.method)} · ${esc(getMemberName(tx.submittedBy))}</div></div>
+        <div style="text-align:right"><div class="item-amount" style="color:var(--red)">${fmtMoney(tx.amount)}</div><span class="badge ${tx.status}" style="margin-top:6px;display:inline-block">${t(tx.status)}</span></div>
+      </div>
+      ${tx.description ? `<div class="item-sub" style="margin-top:6px">${esc(tx.description)}</div>`:''}
+      ${tx.receipt ? `<img class="receipt-thumb" src="${tx.receipt}" data-action="viewReceipt" data-src="${tx.receipt}" style="margin-top:8px">` : `<div class="no-receipt" style="margin-top:8px">${t('noReceiptYet')}</div>`}
+    </div>`;
+}
+function renderVerifyView(){
+  const pendingItems = [...st.incomeTx, ...st.expenseTx].filter(x=>x.status==='pending').sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `<div class="view-header"><h2>${t('pendingQueue')}</h2></div>${pendingItems.length ? pendingItems.map(renderVerifyCard).join('') : `<div class="empty-state">${t('noPending')}</div>`}`;
+}
+function renderVerifyCard(item){
+  const isIncome = item.kind==='income';
+  const isOwn = item.submittedBy === st.activeUser.id;
+  const title = isIncome ? getSiteName(item.siteId) : t(item.category);
+  return `
+    <div class="verify-card">
+      <div class="verify-header"><span class="badge ${item.kind}">${isIncome?t('income'):t('expenses')}</span><span class="item-amount" style="color:${isIncome?'var(--green)':'var(--red)'}">${fmtMoney(item.amount)}</span></div>
+      <div class="verify-details"><span><strong>${title}</strong></span><span>${fmtDate(item.date)} · ${t(item.method)}</span><span>${t('submittedBy')}: ${esc(getMemberName(item.submittedBy))}</span></div>
+      ${item.receipt ? `<img class="receipt-thumb" src="${item.receipt}" data-action="viewReceipt" data-src="${item.receipt}">` : `<div class="no-receipt">${t('noReceiptYet')}</div>`}
+      ${isOwn ? `<div class="own-note">🔒 ${t('cannotVerifyOwn')}</div>` : `<div class="verify-actions"><button class="btn-verify" data-action="verifyTx" data-kind="${item.kind}" data-id="${item.id}">✓ ${t('verifyBtn')}</button><button class="btn-reject" data-action="rejectTx" data-kind="${item.kind}" data-id="${item.id}">✕ ${t('reject')}</button></div>`}
+    </div>`;
+}
+function renderAdminView(){
+  const catTotals = {};
+  st.expenseTx.filter(x=>x.status==='verified').forEach(x=>{ catTotals[x.category]=(catTotals[x.category]||0)+x.amount; });
+  const catRows = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const allTx = [...st.incomeTx, ...st.expenseTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `
+    <div class="view-header"><h2>${t('admin')}</h2></div>
+    <h3 class="section-title">${t('members')} (${st.members.length})</h3>
+    <div class="card-list" style="margin-bottom:10px">${st.members.map(m=>`
+        <div class="member-row">
+          <div><div class="item-title">${esc(m.name)}</div><div class="item-sub">${esc(memberTitle(m))} · ${esc(m.phone)}</div></div>
+          <div class="member-row-actions">
+            <span class="badge ${m.role==='admin'?'verified':'in_progress'}">${m.role==='admin'?t('admin'):t('role')}</span>
+            <button class="mini-remove" data-action="removeMember" data-id="${m.id}" title="${t('removeMember')}">✕</button>
+          </div>
+        </div>`).join('')}</div>
+    <button class="btn-add" style="width:100%;margin-bottom:20px" data-action="openModal" data-modal="member">+ ${t('addMember')}</button>
+    <h3 class="section-title">${t('reportsByCategory')}</h3>
+    <div class="item-card" style="margin-bottom:20px">${catRows.length ? catRows.map(([cat,amt])=>`<div class="cat-report-row"><span>${t(cat)}</span><span style="font-weight:700">${fmtMoney(amt)}</span></div>`).join('') : `<div class="empty-state">${t('noData')}</div>`}</div>
+    <h3 class="section-title">${t('allTransactions')} (${allTx.length})</h3>
+    <div class="card-list" style="margin-bottom:20px">${allTx.map(renderActivityRow).join('')}</div>
+    <button class="btn-add" style="width:100%;background:var(--red-dim);color:var(--red);border:1px solid var(--red-bd)" data-action="resetDemo">↺ ${t('resetDemo')}</button>`;
+}
+
+function openModal(name, presetSiteId){
+  st.modalOpen = name;
+  st.modalData = {presetSiteId: presetSiteId||null};
+  document.getElementById('modalOverlay').style.display='flex';
+  renderModal();
+}
+function closeModal(){ document.getElementById('modalOverlay').style.display='none'; st.modalOpen=null; }
+function renderModal(){
+  const box = document.getElementById('modalBox');
+  if (st.modalOpen==='site') box.innerHTML = modalSiteHTML();
+  else if (st.modalOpen==='income') box.innerHTML = modalIncomeHTML();
+  else if (st.modalOpen==='expense') box.innerHTML = modalExpenseHTML();
+  else if (st.modalOpen==='member') box.innerHTML = modalMemberHTML();
+  else if (st.modalOpen==='receipt') box.innerHTML = modalReceiptHTML();
+}
+function modalSiteHTML(){
+  const cats = ['tubewell','borewell','exploration','watersurvey','industrial','agri'];
+  return `
+    <div class="modal-title">${t('addNewSite')}<span class="modal-close" data-action="closeModal">✕</span></div>
+    <div class="form-group"><label>${t('siteName')}</label><input id="fSiteName" type="text" /></div>
+    <div class="form-group"><label>${t('location')}</label><input id="fSiteLocation" type="text" /></div>
+    <div class="form-group"><label>${t('client')}</label><input id="fSiteClient" type="text" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>${t('drillingCategory')}</label><select id="fSiteCategory">${cats.map(c=>`<option value="${c}">${t(c)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>${t('expectedAmount')}</label><input id="fSiteAmount" type="number" /></div>
+    </div>
+    <div class="form-group"><label>${t('startDate')}</label><input id="fSiteDate" type="date" value="${todayISO()}" /></div>
+    <div class="form-group"><label>${t('status')}</label><select id="fSiteStatus">
+      <option value="in_progress">${t('in_progress')}</option>
+      <option value="completed_pending">${t('completed_pending')}</option>
+      <option value="completed_paid">${t('completed_paid')}</option>
+    </select></div>
+    <button class="btn-submit" data-action="submitSite">${t('save')}</button>`;
+}
+function modalIncomeHTML(){
+  const preset = st.modalData.presetSiteId;
+  const methods = ['cash','banktransfer','jazzcash','easypaisa','cheque','onlinebanking'];
+  return `
+    <div class="modal-title">${t('addPayment')}<span class="modal-close" data-action="closeModal">✕</span></div>
+    <div class="form-group"><label>${t('forSite')}</label><select id="fIncSite">
+      <option value="">${t('selectSite')}</option>
+      ${st.sites.map(s=>`<option value="${s.id}" ${preset===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}
+    </select></div>
+    <div class="form-group"><label>${t('uploadReceipt')}</label>
+      <div class="upload-zone" id="incUploadZone"><span>📤 ${t('uploadReceipt')}</span><input type="file" accept="image/*" id="incFileInput" /></div>
+      <button class="btn-extract" id="incExtractBtn" style="display:none" data-action="extractIncome">🔍 ${t('extractReceipt')}</button>
+      <div class="extract-status" id="incExtractStatus"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>${t('amount')}</label><input id="fIncAmount" type="number" /></div>
+      <div class="form-group"><label>${t('date')}</label><input id="fIncDate" type="date" value="${todayISO()}" /></div>
+    </div>
+    <div class="form-group"><label>${t('paymentMethod')}</label><select id="fIncMethod">${methods.map(m=>`<option value="${m}">${t(m)}</option>`).join('')}</select></div>
+    <button class="btn-submit" data-action="submitIncome">${t('submit')}</button>`;
+}
+function modalExpenseHTML(){
+  const cats = ['fuel','machinery','drillbits','rental','wages','setup','transport','casing','watermud','permits','misc'];
+  const methods = ['cash','banktransfer','jazzcash','easypaisa','cheque','onlinebanking'];
+  return `
+    <div class="modal-title">${t('addExpense')}<span class="modal-close" data-action="closeModal">✕</span></div>
+    <div class="form-group"><label>${t('category')}</label><select id="fExpCategory">${cats.map(c=>`<option value="${c}">${t(c)}</option>`).join('')}</select></div>
+    <div class="form-group" id="workerFieldGroup" style="display:none"><label>${t('workerName')}</label><input id="fExpWorker" type="text" /></div>
+    <div class="form-group"><label>${t('uploadReceipt')}</label>
+      <div class="upload-zone" id="expUploadZone"><span>📤 ${t('uploadReceipt')}</span><input type="file" accept="image/*" id="expFileInput" /></div>
+      <button class="btn-extract" id="expExtractBtn" style="display:none" data-action="extractExpense">🔍 ${t('extractReceipt')}</button>
+      <div class="extract-status" id="expExtractStatus"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>${t('amount')}</label><input id="fExpAmount" type="number" /></div>
+      <div class="form-group"><label>${t('date')}</label><input id="fExpDate" type="date" value="${todayISO()}" /></div>
+    </div>
+    <div class="form-group"><label>${t('paymentMethod')}</label><select id="fExpMethod">${methods.map(m=>`<option value="${m}">${t(m)}</option>`).join('')}</select></div>
+    <div class="form-group"><label>${t('description')}</label><textarea id="fExpDesc" rows="2"></textarea></div>
+    <button class="btn-submit" data-action="submitExpense">${t('submit')}</button>`;
+}
+function modalMemberHTML(){
+  return `
+    <div class="modal-title">${t('addMember')}<span class="modal-close" data-action="closeModal">✕</span></div>
+    <div class="form-group"><label>${t('memberName')}</label><input id="fMemName" type="text" /></div>
+    <div class="form-group"><label>${t('phoneLabel')}</label><input id="fMemPhone" type="tel" placeholder="03XX-XXXXXXX" /></div>
+    <div class="form-group"><label>${t('roleFieldLbl')}</label><select id="fMemRole">
+      <option value="member">${t('role')}</option>
+      <option value="admin">${t('admin')}</option>
+    </select></div>
+    <div class="form-group"><label>${t('memberTitleLbl')}</label><input id="fMemTitle" type="text" /></div>
+    <button class="btn-submit" data-action="submitMember">${t('save')}</button>`;
+}
+function modalReceiptHTML(){
+  return `<div class="modal-title">${t('viewReceipt')}<span class="modal-close" data-action="closeModal">✕</span></div><img class="receipt-modal-img" src="${st.modalData.viewSrc}" />`;
+}
+
+function resizeImage(dataUrl, maxWidth){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      let w=img.width, h=img.height;
+      if (w>maxWidth){ h = Math.round(h*(maxWidth/w)); w = maxWidth; }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = ()=> resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+async function handleFileSelect(e, prefix){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ()=>{
+    const resized = await resizeImage(reader.result, 900);
+    st.modalData[prefix+'Receipt'] = resized;
+    document.getElementById(prefix+'UploadZone').innerHTML = `<img class="upload-preview" src="${resized}"><input type="file" accept="image/*" id="${prefix}FileInput" />`;
+    document.getElementById(prefix+'ExtractBtn').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+async function runExtraction(prefix){
+  const statusEl = document.getElementById(prefix+'ExtractStatus');
+  const dataUrl = st.modalData[prefix+'Receipt'];
+  if (!dataUrl) return;
+  statusEl.textContent = t('extracting'); statusEl.className='extract-status extracting';
+  const cap = prefix==='inc' ? 'Inc' : 'Exp';
+  try {
+    const base64 = dataUrl.split(',')[1];
+    const mediaType = dataUrl.substring(5, dataUrl.indexOf(';'));
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:1000,
+        messages:[{ role:'user', content:[
+          {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
+          {type:'text', text:'This image is a bank deposit slip, fund transfer receipt, mobile wallet screenshot, or cheque. Extract the key details and reply with ONLY raw JSON and nothing else (no markdown fences, no explanation), in exactly this shape: {"amount": <number without commas or currency symbols, or null>, "date": "<YYYY-MM-DD, or null>", "method": "<one of Cash, Bank Transfer, JazzCash, EasyPaisa, Cheque, Online Banking, or null>"}'}
+        ]}]
+      })
+    });
+    const data = await resp.json();
+    const textBlock = (data.content||[]).find(b=>b.type==='text');
+    if (!textBlock) throw new Error('no text');
+    const clean = textBlock.text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if (parsed.amount) document.getElementById('f'+cap+'Amount').value = parsed.amount;
+    if (parsed.date) document.getElementById('f'+cap+'Date').value = parsed.date;
+    if (parsed.method){
+      const map = {'Cash':'cash','Bank Transfer':'banktransfer','JazzCash':'jazzcash','EasyPaisa':'easypaisa','Cheque':'cheque','Online Banking':'onlinebanking'};
+      const key = map[parsed.method];
+      if (key) document.getElementById('f'+cap+'Method').value = key;
+    }
+    statusEl.textContent = '✓ ' + t('extracted'); statusEl.className='extract-status success';
+  } catch(err){
+    statusEl.textContent = t('extractFailed'); statusEl.className='extract-status error';
+  }
+}
+
+function submitSite(){
+  const name = document.getElementById('fSiteName').value.trim();
+  const location = document.getElementById('fSiteLocation').value.trim();
+  const client = document.getElementById('fSiteClient').value.trim();
+  const category = document.getElementById('fSiteCategory').value;
+  const amount = parseFloat(document.getElementById('fSiteAmount').value);
+  const date = document.getElementById('fSiteDate').value;
+  const status = document.getElementById('fSiteStatus').value;
+  if (!name || !location || !client || !amount || !date){ showToast(t('requiredField')); return; }
+  st.sites.push({id:uid('s'), name, location, client, category, expectedAmount:amount, startDate:date, status});
+  closeModal(); switchTab('sites'); showToast('✓ ' + name);
+}
+function submitIncome(){
+  const siteId = document.getElementById('fIncSite').value;
+  const amount = parseFloat(document.getElementById('fIncAmount').value);
+  const date = document.getElementById('fIncDate').value;
+  const method = document.getElementById('fIncMethod').value;
+  if (!siteId || !amount || !date){ showToast(t('requiredField')); return; }
+  st.incomeTx.push({id:uid('i'), kind:'income', siteId, amount, date, method, receipt:st.modalData.incReceipt||null, submittedBy:st.activeUser.id, status:'pending', verifiedBy:null});
+  closeModal(); switchTab('income'); showToast('✓ Payment recorded');
+}
+function submitExpense(){
+  const category = document.getElementById('fExpCategory').value;
+  const workerEl = document.getElementById('fExpWorker');
+  const worker = workerEl ? workerEl.value.trim() : '';
+  const amount = parseFloat(document.getElementById('fExpAmount').value);
+  const date = document.getElementById('fExpDate').value;
+  const method = document.getElementById('fExpMethod').value;
+  const desc = document.getElementById('fExpDesc').value.trim();
+  if (!amount || !date){ showToast(t('requiredField')); return; }
+  st.expenseTx.push({id:uid('e'), kind:'expense', category, amount, date, method, description:desc, worker, receipt:st.modalData.expReceipt||null, submittedBy:st.activeUser.id, status:'pending', verifiedBy:null});
+  closeModal(); switchTab('expenses'); showToast('✓ Expense recorded');
+}
+function submitMember(){
+  const name = document.getElementById('fMemName').value.trim();
+  const phone = document.getElementById('fMemPhone').value.replace(/\D/g,'');
+  const role = document.getElementById('fMemRole').value;
+  const title = document.getElementById('fMemTitle').value.trim();
+  if (!name || phone.length<10){ showToast(t('requiredField')); return; }
+  if (st.members.some(m=>m.phone===phone || m.phone.slice(-10)===phone.slice(-10))){ showToast(t('numberExists')); return; }
+  st.members.push({id:uid('m'), name, phone, role, title:title||'', titleUr:title||''});
+  closeModal(); renderContent(); renderHeader(); showToast('✓ ' + name);
+}
+function removeMember(id){
+  const target = getMember(id);
+  if (!target) return;
+  if (target.id === st.activeUser.id){ showToast(t('cannotRemoveSelf')); return; }
+  const adminCount = st.members.filter(m=>m.role==='admin').length;
+  if (target.role==='admin' && adminCount<=1){ showToast(t('needOneAdmin')); return; }
+  st.members = st.members.filter(m=>m.id!==id);
+  renderContent(); renderHeader(); showToast('✓ Removed');
+}
+function verifyTx(kind, id){
+  const list = kind==='income' ? st.incomeTx : st.expenseTx;
+  const tx = list.find(x=>x.id===id);
+  if (!tx || tx.submittedBy===st.activeUser.id) return;
+  tx.status='verified'; tx.verifiedBy = st.activeUser.id;
+  if (kind==='income'){ const site = getSite(tx.siteId); if (site && site.status==='completed_pending') site.status='completed_paid'; }
+  renderBalanceStrip(); renderNav(); renderContent(); showToast('✓ ' + t('verified'));
+}
+function rejectTx(kind, id){
+  const list = kind==='income' ? st.incomeTx : st.expenseTx;
+  const tx = list.find(x=>x.id===id);
+  if (!tx || tx.submittedBy===st.activeUser.id) return;
+  tx.status='disputed'; tx.verifiedBy = st.activeUser.id;
+  renderBalanceStrip(); renderNav(); renderContent(); showToast('✕ ' + t('disputed'));
+}
+function resetDemo(){
+  const fresh = JSON.parse(JSON.stringify(seedData));
+  st.members = fresh.members; st.sites = fresh.sites; st.incomeTx = fresh.incomeTx; st.expenseTx = fresh.expenseTx;
+  st.activeUser = st.members.find(m=>m.id===st.activeUser.id) || st.members[0];
+  renderHeader(); renderBalanceStrip(); renderNav(); renderContent(); showToast('↺ Reset');
+}
+let toastTimer=null;
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display='block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.display='none'; }, 2200);
+}
+
+document.addEventListener('click', (e)=>{
+  const el = e.target.closest('[data-action]');
+  if (!el){
+    if (!e.target.closest('#userMenu')){ const dd=document.getElementById('userDropdown'); if(dd) dd.style.display='none'; }
+    return;
+  }
+  const action = el.dataset.action;
+  if (action==='switchTab') switchTab(el.dataset.tab);
+  else if (action==='openModal') openModal(el.dataset.modal, el.dataset.site);
+  else if (action==='closeModal') closeModal();
+  else if (action==='toggleUserMenu'){ const dd=document.getElementById('userDropdown'); dd.style.display = dd.style.display==='block'?'none':'block'; }
+  else if (action==='switchUser'){
+    st.activeUser = getMember(el.dataset.id);
+    if (st.activeTab==='admin' && st.activeUser.role!=='admin') st.activeTab='dashboard';
+    document.getElementById('userDropdown').style.display='none';
+    renderHeader(); renderNav(); renderContent();
+    showToast(t('actingAs')+': '+st.activeUser.name);
+  }
+  else if (action==='logout'){
+    st.loggedIn=false; st.activeUser=null;
+    document.getElementById('appView').style.display='none';
+    document.getElementById('loginView').style.display='flex';
+    document.getElementById('phoneInput').value='';
+  }
+  else if (action==='dismissBanner'){ st.infoBannerDismissed=true; renderContent(); }
+  else if (action==='submitSite') submitSite();
+  else if (action==='submitIncome') submitIncome();
+  else if (action==='submitExpense') submitExpense();
+  else if (action==='submitMember') submitMember();
+  else if (action==='removeMember') removeMember(el.dataset.id);
+  else if (action==='verifyTx') verifyTx(el.dataset.kind, el.dataset.id);
+  else if (action==='rejectTx') rejectTx(el.dataset.kind, el.dataset.id);
+  else if (action==='viewReceipt'){ st.modalData.viewSrc = el.dataset.src; st.modalOpen='receipt'; document.getElementById('modalOverlay').style.display='flex'; renderModal(); }
+  else if (action==='extractIncome') runExtraction('inc');
+  else if (action==='extractExpense') runExtraction('exp');
+  else if (action==='resetDemo') resetDemo();
+});
+document.addEventListener('change', (e)=>{
+  if (e.target.id==='fExpCategory'){ const g=document.getElementById('workerFieldGroup'); if(g) g.style.display = e.target.value==='wages' ? 'block':'none'; }
+  if (e.target.id==='incFileInput') handleFileSelect(e,'inc');
+  if (e.target.id==='expFileInput') handleFileSelect(e,'exp');
+});
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if (e.target.id==='modalOverlay') closeModal(); });
+
+applyLangUI();
+</script>
+</body>
+</html>
